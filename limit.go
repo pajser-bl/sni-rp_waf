@@ -14,7 +14,7 @@ import (
 var rR, _ = strconv.Atoi(os.Getenv("REQUESTS_RATE"))
 var rIP, _ = strconv.Atoi(os.Getenv("REQUESTS_RATE_PER_IP"))
 
-var limiter = rate.NewLimiter(rate.Limit(rR), rR*5)
+var limiter = rate.NewLimiter(1000, 1000*5)
 
 func limit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
@@ -63,7 +63,7 @@ func getVisitor(ip string) *rate.Limiter {
 	defer mu.Unlock()
 	vis, exists := visitors[ip]
 	if !exists {
-		limiter = rate.NewLimiter(rate.Limit(rIP), rIP*5)
+		limiter = rate.NewLimiter(100, 100*5)
 		visitors[ip] = &visitor{limiter, time.Now()}
 		return limiter
 	}
